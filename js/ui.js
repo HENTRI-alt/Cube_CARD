@@ -21,6 +21,12 @@ window.showScreen = function(screenId) {
             targetScreen.classList.remove('fade-in');
         }, 300);
     }
+    
+    // При переходе на главный экран сбрасываем текущий пак
+    if (screenId === 'main-screen') {
+        window.currentPack = null;
+        updateNextCardButton();
+    }
 }
 
 // Обновление отображения монет
@@ -113,11 +119,15 @@ window.animateCardOpening = function(card) {
                 }, 300);
             }
             
+            // Легендарные карты получают дополнительную анимацию
+            if (card.rarity === 'legendary') {
+                cardElement.classList.add('bounce');
+            }
+            
             // Показываем сообщение
             let message = `🎉 Вы получили: ${card.name}!`;
             if (card.rarity === 'legendary') {
                 message = `🏆 ЛЕГЕНДАРНО! ${card.name}! 🏆`;
-                cardElement.classList.add('bounce');
             } else if (card.rarity === 'epic') {
                 message = `✨ ЭПИЧЕСКАЯ КАРТА! ${card.name}!`;
             } else if (card.rarity === 'rare') {
@@ -126,6 +136,11 @@ window.animateCardOpening = function(card) {
             
             showModal(message, 4000);
             console.log("Modal shown:", message);
+            
+            // Обновляем кнопку следующей карты после анимации
+            setTimeout(() => {
+                updateNextCardButton();
+            }, 1000);
             
         }, 1000);
     }, 100);

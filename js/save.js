@@ -7,7 +7,7 @@ const SAVE_KEY = 'cardSimulatorSave';
 const defaultGameState = {
     coins: 1000,
     inventory: [],
-    unopenedPacks: [], // Добавляем пустой массив паков
+    unopenedPacks: [],
     stats: {
         packsOpened: 0,
         cardsFound: 0,
@@ -35,6 +35,11 @@ function loadGame() {
                 gameState.unopenedPacks = [];
             }
             
+            // Гарантируем что inventory существует
+            if (!gameState.inventory) {
+                gameState.inventory = [];
+            }
+            
             console.log("Game loaded:", gameState);
             return gameState;
         }
@@ -54,6 +59,11 @@ function saveGame(gameState) {
         // Гарантируем что unopenedPacks существует перед сохранением
         if (!gameState.unopenedPacks) {
             gameState.unopenedPacks = [];
+        }
+        
+        // Гарантируем что inventory существует перед сохранением
+        if (!gameState.inventory) {
+            gameState.inventory = [];
         }
         
         localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
@@ -95,6 +105,7 @@ function addCardToInventory(card) {
     if (card.rarity === 'legendary') gameState.stats.legendaryCardsFound += 1;
     
     saveGame(gameState);
+    console.log("Card added to inventory:", card);
     return gameState;
 }
 
