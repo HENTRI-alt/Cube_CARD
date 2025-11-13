@@ -11,7 +11,8 @@ window.buyPack = function(packType, cost) {
     
     // Проверка баланса
     if (currentCoins < cost) {
-        showModal('Недостаточно монет!');
+        showModal('❌ Недостаточно монет!');
+        console.log("Not enough coins");
         return;
     }
     
@@ -19,87 +20,107 @@ window.buyPack = function(packType, cost) {
     updateCoins(-cost);
     updateCoinDisplay();
     
-    // Получаем случайную карту
-    const card = getRandomCard(packType);
-    window.currentCard = card;
-    console.log("Got card:", card);
-    
-    // Добавляем в инвентарь
-    addCardToInventory(card);
+    // Добавляем пак в инвентарь (а не открываем сразу)
+    addPackToInventory(packType);
     
     // Обновляем статистику
     const gameState = loadGame();
     gameState.stats.packsOpened += 1;
     saveGame(gameState);
     
-    // Переходим на экран открытия
-    showScreen('opening-screen');
+    // Обновляем отображение паков
+    updatePacksDisplay();
     
-    // Сбрасываем анимацию карты
-    const cardElement = document.getElementById('card-preview');
-    if (cardElement) {
-        cardElement.classList.add('hidden');
-        cardElement.classList.remove('flipped');
+    // Показываем уведомление
+    let message = `📦 Базовый пак добавлен в инвентарь!`;
+    if (packType === 'premium') {
+        message = `💎 Премиум пак добавлен в инвентарь!`;
     }
+    showModal(message);
     
-    showModal(`Пак куплен за ${cost} монет!`);
+    console.log("Pack purchased successfully:", packType);
 }
 
 // Инициализация игры
 function initGame() {
-    console.log("Initializing game...");
+    console.log("=== GAME INITIALIZATION ===");
     
     // Загружаем сохранение
-    loadGame();
+    const gameState = loadGame();
+    console.log("Game state loaded:", gameState);
     
     // Инициализируем UI
     initUI();
     
-    // Тестируем кнопки
-    testButtons();
+    // Обновляем отображение паков
+    updatePacksDisplay();
     
-    // Показываем приветствие
-    setTimeout(() => {
-        showModal('Добро пожаловать в Карточный Симулятор!');
-    }, 1000);
-}
-
-// Тестирование кнопок
-function testButtons() {
-    console.log("Testing buttons...");
-    
-    const buyButtons = document.querySelectorAll('.buy-pack');
-    console.log("Found buy buttons:", buyButtons.length);
-    
-    const inventoryBtn = document.getElementById('inventory-btn');
-    console.log("Inventory button:", inventoryBtn);
-    
-    // Принудительно перепривязываем обработчики
-    buyButtons.forEach(button => {
-        button.onclick = function(e) {
-            e.stopPropagation();
-            const packElement = e.target.closest('.pack');
-            const packType = packElement.classList.contains('premium-pack') ? 'premium' : 'basic';
-            const cost = parseInt(packElement.dataset.cost);
-            console.log("Button clicked directly!", packType, cost);
-            buyPack(packType, cost);
-        };
-    });
-    
-    if (inventoryBtn) {
-        inventoryBtn.onclick = function() {
-            console.log("Inventory button clicked directly!");
-            showScreen('inventory-screen');
-            renderInventory();
-        };
-    }
+    console.log("=== GAME READY ===");
 }
 
 // Запуск игры при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded!");
-    initGame();
+    console.log("DOM fully loaded and parsed");
+    setTimeout(initGame, 100);
 });
 
-// Глобальные функции для отладки
-window.debugGame = initGame;
+// Отладка и утилиты
+window.debug = {
+    // Сброс игры
+    resetGame: function() {
+        if (confirm('Точно сбросить весь прогресс?')) {
+            resetGame();
+            location.reload();
+        }
+    },
+    
+    // Добавить монеты
+    addCoins: function(amount = 1000) {
+        updateCoins(amount);
+        updateCoinDisplay();
+        showModal(`🪙 Добавлено ${amount} монет!`);
+    },
+    
+    // Получить состояние игры
+    getState: function() {
+        return loadGame();
+    },
+    
+    // Добавить тестовые паки
+    addTestPacks: function() {
+        addPackToInventory('basic');
+        addPackToInventory('premium');
+        updatePacksDisplay();
+        showModal('📦 Тестовые паки добавлены!');
+    },
+    
+    // Показать всю статистику
+    showStats: function() {
+        const state = loadGame();
+        console.log("=== GAME STATS ===");
+        console.log("Монеты:", state.coins);
+        console.log("Карты в инвентаре:", state.inventory.length);
+        console.log("Паки:", state.unopenedPacks.length);
+        console.log("Открыто паков:", state.stats.packsOpened);
+        console.log("Найдено карт:", state.stats.cardsFound);
+        console.log("===================");
+        
+        let statsMessage = `
+🎮 Статистика игры:
+🪙 Монеты: ${state.coins}
+🎴 Карты: ${state.inventory.length}
+📦 Паки: ${state.unopenedPacks.length}
+📊 Открыто паков: ${state.stats.packsOpened}
+        `.trim();
+        
+        showModal(statsMessage, 5000);
+    }
+};
+
+// Глобальные хелперы
+window.getGameState = loadGame;
+window.refreshUI = function() {
+    updateCoinDisplay();
+    updatePacksDisplay();
+    console.log("UI refreshed");
+};

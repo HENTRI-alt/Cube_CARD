@@ -4,6 +4,7 @@ console.log("UI.js loaded!");
 // Переключение экранов
 window.showScreen = function(screenId) {
     console.log("Showing screen:", screenId);
+    
     // Скрываем все экраны
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -13,6 +14,12 @@ window.showScreen = function(screenId) {
     const targetScreen = document.getElementById(screenId);
     if (targetScreen) {
         targetScreen.classList.add('active');
+        targetScreen.classList.add('fade-in');
+        
+        // Убираем анимацию после завершения
+        setTimeout(() => {
+            targetScreen.classList.remove('fade-in');
+        }, 300);
     }
 }
 
@@ -21,6 +28,11 @@ window.updateCoinDisplay = function() {
     const coinsElement = document.getElementById('coins');
     if (coinsElement) {
         coinsElement.textContent = getCoins();
+        coinsElement.classList.add('pulse');
+        
+        setTimeout(() => {
+            coinsElement.classList.remove('pulse');
+        }, 500);
     }
 }
 
@@ -33,30 +45,44 @@ window.showModal = function(message, duration = 3000) {
     if (modal && modalText) {
         modalText.textContent = message;
         modal.classList.remove('hidden');
+        modal.classList.add('fade-in');
         
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, duration);
+        if (duration > 0) {
+            setTimeout(() => {
+                closeModal();
+            }, duration);
+        }
+    }
+}
+
+// Закрытие модального окна
+window.closeModal = function() {
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.classList.add('hidden');
     }
 }
 
 // Анимация открытия карты
 window.animateCardOpening = function(card) {
-    console.log("Animating card:", card);
+    console.log("Animating card opening:", card);
     const cardElement = document.getElementById('card-preview');
     const cardImage = document.getElementById('card-image');
     const cardName = document.getElementById('card-name');
     const cardRarity = document.getElementById('card-rarity');
     
-    if (!cardElement) return;
+    if (!cardElement) {
+        console.log("Card element not found");
+        return;
+    }
     
     // Сбрасываем анимацию
-    cardElement.classList.remove('flipped', 'shake', 'glow');
+    cardElement.classList.remove('flipped', 'shake', 'glow', 'bounce');
     cardElement.classList.remove('common', 'rare', 'epic', 'legendary');
     
-    // Устанавливаем данные карты (пока без картинок)
-    cardImage.src = ''; // Пока оставляем пустым
-    cardImage.alt = card.name;
+    // Устанавливаем данные карты
+    cardImage.textContent = card.emoji;
+    cardImage.className = 'card-image';
     cardName.textContent = card.name;
     cardRarity.textContent = card.rarity.toUpperCase();
     cardRarity.style.color = getRarityColor(card.rarity);
@@ -66,82 +92,76 @@ window.animateCardOpening = function(card) {
     
     // Показываем карту
     cardElement.classList.remove('hidden');
+    cardElement.classList.add('slide-in');
+    
+    console.log("Starting card animation sequence");
     
     // Запускаем анимации
     setTimeout(() => {
         cardElement.classList.add('shake');
+        console.log("Shake animation started");
         
         setTimeout(() => {
             cardElement.classList.add('flipped');
+            console.log("Card flipped");
             
             // Если карта редкая или выше - добавляем свечение
             if (card.rarity !== 'common') {
                 setTimeout(() => {
                     cardElement.classList.add('glow');
+                    console.log("Glow animation started for", card.rarity);
                 }, 300);
             }
             
             // Показываем сообщение
-            let message = `Вы получили: ${card.name}!`;
+            let message = `🎉 Вы получили: ${card.name}!`;
             if (card.rarity === 'legendary') {
-                message = `🎉 ЛЕГЕНДАРНО! ${card.name}! 🎉`;
+                message = `🏆 ЛЕГЕНДАРНО! ${card.name}! 🏆`;
+                cardElement.classList.add('bounce');
             } else if (card.rarity === 'epic') {
                 message = `✨ ЭПИЧЕСКАЯ КАРТА! ${card.name}!`;
             } else if (card.rarity === 'rare') {
                 message = `⭐ РЕДКАЯ КАРТА! ${card.name}`;
             }
             
-            showModal(message);
+            showModal(message, 4000);
+            console.log("Modal shown:", message);
             
         }, 1000);
     }, 100);
+}
+
+// Открытие карты
+window.revealCard = function() {
+    const currentCard = window.currentCard;
+    if (currentCard) {
+        animateCardOpening(currentCard);
+    } else {
+        showModal('❌ Нет карты для открытия!');
+        console.log("No card to reveal");
+    }
 }
 
 // Настройка обработчиков событий
 window.setupEventListeners = function() {
     console.log("Setting up event listeners...");
     
-    // Навигация - используем прямые обработчики
-    const inventoryBtn = document.getElementById('inventory-btn');
-    const backFromInventory = document.getElementById('back-from-inventory');
-    const backToMain = document.getElementById('back-to-main');
-    const revealCard = document.getElementById('reveal-card');
+    // Закрытие модального окна по клику вне его
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
     
-    if (inventoryBtn) {
-        inventoryBtn.onclick = function() {
-            showScreen('inventory-screen');
-            renderInventory();
-        };
-    }
+    // Закрытие модального окна по ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
     
-    if (backFromInventory) {
-        backFromInventory.onclick = function() {
-            showScreen('main-screen');
-        };
-    }
-    
-    if (backToMain) {
-        backToMain.onclick = function() {
-            showScreen('main-screen');
-        };
-    }
-    
-    if (revealCard) {
-        revealCard.onclick = function() {
-            const currentCard = window.currentCard;
-            if (currentCard) {
-                animateCardOpening(currentCard);
-            }
-        };
-    }
-    
-    // Закрытие модального окна
-    const closeModal = document.querySelector('.close');
-    if (closeModal) {
-        closeModal.onclick = function() {
-            document.getElementById('modal').classList.add('hidden');
-        };
-    }
+    console.log("Event listeners setup completed");
 }
 
 // Инициализация UI
@@ -149,8 +169,10 @@ window.initUI = function() {
     console.log("Initializing UI...");
     updateCoinDisplay();
     setupEventListeners();
-    setupInventoryFilters();
+    updatePacksDisplay();
     
     // Показываем главный экран
     showScreen('main-screen');
+    
+    console.log("UI initialization completed");
 }

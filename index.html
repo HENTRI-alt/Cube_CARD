@@ -28,19 +28,20 @@
                         <div class="pack-icon">📦</div>
                         <h3>Базовый пак</h3>
                         <p>100 монет</p>
-                        <button class="buy-pack">Купить</button>
+                        <button class="buy-pack" onclick="buyPack('basic', 100)">Купить</button>
                     </div>
                     
                     <div class="pack premium-pack" data-cost="500">
                         <div class="pack-icon">💎</div>
                         <h3>Премиум пак</h3>
                         <p>500 монет</p>
-                        <button class="buy-pack">Купить</button>
+                        <button class="buy-pack" onclick="buyPack('premium', 500)">Купить</button>
                     </div>
                 </div>
                 
                 <nav class="main-nav">
-                    <button id="inventory-btn" class="nav-btn">🎒 Инвентарь</button>
+                    <button id="packs-btn" class="nav-btn" onclick="showScreen('packs-screen'); renderPacks();">📦 Мои паки</button>
+                    <button id="inventory-btn" class="nav-btn" onclick="showScreen('inventory-screen'); renderInventory();">🎒 Карты</button>
                     <button id="achievements-btn" class="nav-btn">🏆 Достижения</button>
                 </nav>
             </div>
@@ -52,29 +53,36 @@
                         <div class="card-inner">
                             <div class="card-front">❓</div>
                             <div class="card-back">
-                                <img id="card-image" src="" alt="Карта">
-                                <div id="card-name"></div>
-                                <div id="card-rarity"></div>
+                                <div id="card-image" class="card-image"></div>
+                                <div id="card-name" class="card-name"></div>
+                                <div id="card-rarity" class="card-rarity"></div>
                             </div>
                         </div>
                     </div>
-                    <button id="reveal-card" class="action-btn">Открыть карту</button>
-                    <button id="back-to-main" class="action-btn">На главную</button>
+                    <button id="reveal-card" class="action-btn" onclick="revealCard()">Открыть карту</button>
+                    <button id="back-to-main" class="action-btn" onclick="showScreen('main-screen')">На главную</button>
                 </div>
             </div>
 
-            <!-- Экран инвентаря -->
+            <!-- Экран инвентаря карт -->
             <div id="inventory-screen" class="screen">
-                <h2>🎒 Инвентарь</h2>
+                <h2>🎒 Коллекция карт</h2>
                 <div class="filters">
-                    <button class="filter-btn active" data-filter="all">Все</button>
-                    <button class="filter-btn" data-filter="common">Обычные</button>
-                    <button class="filter-btn" data-filter="rare">Редкие</button>
-                    <button class="filter-btn" data-filter="epic">Эпические</button>
-                    <button class="filter-btn" data-filter="legendary">Легендарные</button>
+                    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Все</button>
+                    <button class="filter-btn" data-filter="common" onclick="setFilter('common')">Обычные</button>
+                    <button class="filter-btn" data-filter="rare" onclick="setFilter('rare')">Редкие</button>
+                    <button class="filter-btn" data-filter="epic" onclick="setFilter('epic')">Эпические</button>
+                    <button class="filter-btn" data-filter="legendary" onclick="setFilter('legendary')">Легендарные</button>
                 </div>
                 <div id="inventory-grid" class="inventory-grid"></div>
-                <button id="back-from-inventory" class="action-btn">Назад</button>
+                <button id="back-from-inventory" class="action-btn" onclick="showScreen('main-screen')">Назад</button>
+            </div>
+
+            <!-- Экран инвентаря паков -->
+            <div id="packs-screen" class="screen">
+                <h2>📦 Мои паки</h2>
+                <div id="packs-grid" class="packs-grid"></div>
+                <button id="back-from-packs" class="action-btn" onclick="showScreen('main-screen')">Назад</button>
             </div>
         </main>
     </div>
@@ -82,7 +90,7 @@
     <!-- Модальные окна -->
     <div id="modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" onclick="closeModal()">&times;</span>
             <div id="modal-text"></div>
         </div>
     </div>
@@ -90,6 +98,7 @@
     <script src="js/cards.js"></script>
     <script src="js/save.js"></script>
     <script src="js/inventory.js"></script>
+    <script src="js/packs.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/game.js"></script>
 </body>

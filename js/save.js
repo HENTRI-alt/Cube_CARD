@@ -1,10 +1,13 @@
 // Система сохранения
+console.log("Save.js loaded!");
+
 const SAVE_KEY = 'cardSimulatorSave';
 
 // Стандартное состояние игры
 const defaultGameState = {
     coins: 1000,
     inventory: [],
+    unopenedPacks: [],
     stats: {
         packsOpened: 0,
         cardsFound: 0,
@@ -25,7 +28,9 @@ function loadGame() {
     try {
         const saveData = localStorage.getItem(SAVE_KEY);
         if (saveData) {
-            return JSON.parse(saveData);
+            const gameState = JSON.parse(saveData);
+            console.log("Game loaded:", gameState);
+            return gameState;
         }
     } catch (error) {
         console.error('Ошибка загрузки:', error);
@@ -41,6 +46,7 @@ function loadGame() {
 function saveGame(gameState) {
     try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+        console.log("Game saved");
         return true;
     } catch (error) {
         console.error('Ошибка сохранения:', error);
@@ -75,6 +81,60 @@ function addCardToInventory(card) {
     return gameState;
 }
 
+// Добавляем пак в инвентарь
+function addPackToInventory(packType) {
+    const gameState = loadGame();
+    
+    const pack = {
+        id: Date.now(), // уникальный ID
+        type: packType,
+        cardsRemaining: 5, // 5 карт в паке
+        cost: packType === 'premium' ? 500 : 100,
+        createdAt: new Date().toISOString()
+    };
+    
+    gameState.unopenedPacks.push(pack);
+    saveGame(gameState);
+    console.log("Pack added:", pack);
+    return gameState;
+}
+
+// Открываем одну карту из пака
+function openCardFromPack(packId) {
+    const gameState = loadGame();
+    const pack = gameState.unopenedPacks.find(p => p.id === packId);
+    
+    if (!pack || pack.cardsRemaining <= 0) {
+        console.log("Pack not found or empty");
+        return null;
+    }
+    
+    // Получаем карту
+    const card = getRandomCard(pack.type);
+    
+    // Добавляем карту в инвентарь
+    addCardToInventory(card);
+    
+    // Уменьшаем количество карт в паке
+    pack.cardsRemaining -= 1;
+    
+    // Если пак пустой, удаляем его
+    if (pack.cardsRemaining <= 0) {
+        gameState.unopenedPacks = gameState.unopenedPacks.filter(p => p.id !== packId);
+        console.log("Pack completed and removed");
+    }
+    
+    saveGame(gameState);
+    console.log("Card opened from pack:", card);
+    return card;
+}
+
+// Получаем непокрытые паки
+function getUnopenedPacks() {
+    const gameState = loadGame();
+    return gameState.unopenedPacks;
+}
+
 // Обновление монет
 function updateCoins(amount) {
     const gameState = loadGame();
@@ -85,6 +145,7 @@ function updateCoins(amount) {
     }
     
     saveGame(gameState);
+    console.log("Coins updated:", gameState.coins);
     return gameState.coins;
 }
 
@@ -97,12 +158,17 @@ function getCoins() {
 // Сброс игры
 function resetGame() {
     localStorage.removeItem(SAVE_KEY);
+    console.log("Game reset");
     return loadGame();
 }
+
 // Объявляем функции глобально
 window.loadGame = loadGame;
 window.saveGame = saveGame;
 window.addCardToInventory = addCardToInventory;
+window.addPackToInventory = addPackToInventory;
+window.openCardFromPack = openCardFromPack;
+window.getUnopenedPacks = getUnopenedPacks;
 window.updateCoins = updateCoins;
 window.getCoins = getCoins;
 window.resetGame = resetGame;

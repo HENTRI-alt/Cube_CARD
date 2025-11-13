@@ -1,10 +1,12 @@
 // Система карт
+console.log("Cards.js loaded!");
+
 const cards = {
     common: [
         { 
             id: 1, 
             name: "Обычный ромб", 
-            image: "assets/cards/common/diamond.png", 
+            emoji: "💎",
             rarity: "common", 
             value: 10,
             description: "Базовый кристалл"
@@ -12,17 +14,33 @@ const cards = {
         { 
             id: 2, 
             name: "Каменный блок", 
-            image: "assets/cards/common/stone.png", 
+            emoji: "🪨",
             rarity: "common", 
             value: 8,
             description: "Прочный материал"
+        },
+        { 
+            id: 3, 
+            name: "Деревяшка", 
+            emoji: "🪵",
+            rarity: "common", 
+            value: 6,
+            description: "Обычное дерево"
+        },
+        { 
+            id: 4, 
+            name: "Стекляшка", 
+            emoji: "🔮",
+            rarity: "common", 
+            value: 7,
+            description: "Прозрачный осколок"
         }
     ],
     rare: [
         { 
             id: 101, 
             name: "Золотой ромб", 
-            image: "assets/cards/rare/gold_diamond.png", 
+            emoji: "💠",
             rarity: "rare", 
             value: 100,
             description: "Блестящий кристалл"
@@ -30,17 +48,25 @@ const cards = {
         { 
             id: 102, 
             name: "Серебряный шар", 
-            image: "assets/cards/rare/silver_orb.png", 
+            emoji: "⚪",
             rarity: "rare", 
             value: 80,
             description: "Магическая сфера"
+        },
+        { 
+            id: 103, 
+            name: "Медный слиток", 
+            emoji: "🟠",
+            rarity: "rare", 
+            value: 70,
+            description: "Теплый металл"
         }
     ],
     epic: [
         { 
             id: 201, 
             name: "Эпический кристалл", 
-            image: "assets/cards/epic/epic_crystal.png", 
+            emoji: "✨",
             rarity: "epic", 
             value: 500,
             description: "Мощный артефакт"
@@ -48,17 +74,25 @@ const cards = {
         { 
             id: 202, 
             name: "Пламенный шар", 
-            image: "assets/cards/epic/fire_orb.png", 
+            emoji: "🔥",
             rarity: "epic", 
             value: 450,
             description: "Горячая энергия"
+        },
+        { 
+            id: 203, 
+            name: "Ледяная сфера", 
+            emoji: "❄️",
+            rarity: "epic", 
+            value: 480,
+            description: "Морозное ядро"
         }
     ],
     legendary: [
         { 
             id: 301, 
             name: "Легендарная звезда", 
-            image: "assets/cards/legendary/legend_star.png", 
+            emoji: "⭐",
             rarity: "legendary", 
             value: 2000,
             description: "Космическая сила"
@@ -66,10 +100,18 @@ const cards = {
         { 
             id: 302, 
             name: "Драконий камень", 
-            image: "assets/cards/legendary/dragon_stone.png", 
+            emoji: "🐉",
             rarity: "legendary", 
             value: 1800,
             description: "Древняя мощь"
+        },
+        { 
+            id: 303, 
+            name: "Феникс перо", 
+            emoji: "🦚",
+            rarity: "legendary", 
+            value: 2200,
+            description: "Вечное возрождение"
         }
     ]
 };
@@ -124,6 +166,20 @@ function getRarityColor(rarity) {
     };
     return colors[rarity] || colors.common;
 }
+
+// Получение emoji для редкости
+function getRarityEmoji(rarity) {
+    const emojis = {
+        common: '⚪',
+        rare: '🔵',
+        epic: '🟣',
+        legendary: '🟠'
+    };
+    return emojis[rarity] || '⚪';
+}
+
 // Объявляем функции глобально
 window.getRandomCard = getRandomCard;
 window.getRarityColor = getRarityColor;
+window.getRarityEmoji = getRarityEmoji;
+window.cardsData = cards;
