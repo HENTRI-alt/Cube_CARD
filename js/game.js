@@ -131,3 +131,21 @@ window.refreshUI = function() {
     updatePacksDisplay();
     console.log("UI refreshed");
 };
+function initGame() {
+    console.log("=== GAME INITIALIZATION ===");
+    
+    // Загружаем сохранение
+    const gameState = loadGame();
+    console.log("Game state loaded:", gameState);
+    
+    // Инициализируем UI
+    initUI();
+    
+    // Инициализируем настройки
+    initSettings();
+    
+    // Обновляем отображение паков
+    updatePacksDisplay();
+    
+    console.log("=== GAME READY ===");
+}
