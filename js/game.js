@@ -1,10 +1,12 @@
 // Основная игровая логика
+console.log("Game.js loaded!");
 
 // Текущая карта для открытия
 window.currentCard = null;
 
-// Объявляем функции глобально
+// Покупка пака
 window.buyPack = function(packType, cost) {
+    console.log("Buy pack called:", packType, cost);
     const currentCoins = getCoins();
     
     // Проверка баланса
@@ -14,12 +16,13 @@ window.buyPack = function(packType, cost) {
     }
     
     // Списываем монеты
-    const newCoins = updateCoins(-cost);
+    updateCoins(-cost);
     updateCoinDisplay();
     
     // Получаем случайную карту
     const card = getRandomCard(packType);
     window.currentCard = card;
+    console.log("Got card:", card);
     
     // Добавляем в инвентарь
     addCardToInventory(card);
@@ -44,11 +47,16 @@ window.buyPack = function(packType, cost) {
 
 // Инициализация игры
 function initGame() {
+    console.log("Initializing game...");
+    
     // Загружаем сохранение
     loadGame();
     
     // Инициализируем UI
     initUI();
+    
+    // Тестируем кнопки
+    testButtons();
     
     // Показываем приветствие
     setTimeout(() => {
@@ -56,18 +64,42 @@ function initGame() {
     }, 1000);
 }
 
-// Запуск игры при загрузке страницы
-document.addEventListener('DOMContentLoaded', initGame);
+// Тестирование кнопок
+function testButtons() {
+    console.log("Testing buttons...");
+    
+    const buyButtons = document.querySelectorAll('.buy-pack');
+    console.log("Found buy buttons:", buyButtons.length);
+    
+    const inventoryBtn = document.getElementById('inventory-btn');
+    console.log("Inventory button:", inventoryBtn);
+    
+    // Принудительно перепривязываем обработчики
+    buyButtons.forEach(button => {
+        button.onclick = function(e) {
+            e.stopPropagation();
+            const packElement = e.target.closest('.pack');
+            const packType = packElement.classList.contains('premium-pack') ? 'premium' : 'basic';
+            const cost = parseInt(packElement.dataset.cost);
+            console.log("Button clicked directly!", packType, cost);
+            buyPack(packType, cost);
+        };
+    });
+    
+    if (inventoryBtn) {
+        inventoryBtn.onclick = function() {
+            console.log("Inventory button clicked directly!");
+            showScreen('inventory-screen');
+            renderInventory();
+        };
+    }
+}
 
-// Отладка (можно удалить в продакшене)
-window.debug = {
-    resetGame: () => {
-        resetGame();
-        location.reload();
-    },
-    addCoins: (amount) => {
-        updateCoins(amount);
-        updateCoinDisplay();
-    },
-    getState: () => loadGame()
-};
+// Запуск игры при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM fully loaded!");
+    initGame();
+});
+
+// Глобальные функции для отладки
+window.debugGame = initGame;

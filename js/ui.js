@@ -1,7 +1,9 @@
 // Управление интерфейсом
+console.log("UI.js loaded!");
 
-// Объявляем функции глобально
+// Переключение экранов
 window.showScreen = function(screenId) {
+    console.log("Showing screen:", screenId);
     // Скрываем все экраны
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -24,6 +26,7 @@ window.updateCoinDisplay = function() {
 
 // Показ модального окна
 window.showModal = function(message, duration = 3000) {
+    console.log("Show modal:", message);
     const modal = document.getElementById('modal');
     const modalText = document.getElementById('modal-text');
     
@@ -39,6 +42,7 @@ window.showModal = function(message, duration = 3000) {
 
 // Анимация открытия карты
 window.animateCardOpening = function(card) {
+    console.log("Animating card:", card);
     const cardElement = document.getElementById('card-preview');
     const cardImage = document.getElementById('card-image');
     const cardName = document.getElementById('card-name');
@@ -50,8 +54,8 @@ window.animateCardOpening = function(card) {
     cardElement.classList.remove('flipped', 'shake', 'glow');
     cardElement.classList.remove('common', 'rare', 'epic', 'legendary');
     
-    // Устанавливаем данные карты
-    cardImage.src = card.image;
+    // Устанавливаем данные карты (пока без картинок)
+    cardImage.src = ''; // Пока оставляем пустым
     cardImage.alt = card.name;
     cardName.textContent = card.name;
     cardRarity.textContent = card.rarity.toUpperCase();
@@ -95,47 +99,54 @@ window.animateCardOpening = function(card) {
 
 // Настройка обработчиков событий
 window.setupEventListeners = function() {
-    // Навигация
-    document.getElementById('inventory-btn')?.addEventListener('click', () => {
-        showScreen('inventory-screen');
-        renderInventory();
-    });
+    console.log("Setting up event listeners...");
     
-    document.getElementById('back-from-inventory')?.addEventListener('click', () => {
-        showScreen('main-screen');
-    });
+    // Навигация - используем прямые обработчики
+    const inventoryBtn = document.getElementById('inventory-btn');
+    const backFromInventory = document.getElementById('back-from-inventory');
+    const backToMain = document.getElementById('back-to-main');
+    const revealCard = document.getElementById('reveal-card');
     
-    document.getElementById('back-to-main')?.addEventListener('click', () => {
-        showScreen('main-screen');
-    });
+    if (inventoryBtn) {
+        inventoryBtn.onclick = function() {
+            showScreen('inventory-screen');
+            renderInventory();
+        };
+    }
     
-    // Покупка паков
-    document.querySelectorAll('.buy-pack').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const packElement = e.target.closest('.pack');
-            const packType = packElement.classList.contains('premium-pack') ? 'premium' : 'basic';
-            const cost = parseInt(packElement.dataset.cost);
-            
-            buyPack(packType, cost);
-        });
-    });
+    if (backFromInventory) {
+        backFromInventory.onclick = function() {
+            showScreen('main-screen');
+        };
+    }
     
-    // Открытие карты
-    document.getElementById('reveal-card')?.addEventListener('click', () => {
-        const currentCard = window.currentCard;
-        if (currentCard) {
-            animateCardOpening(currentCard);
-        }
-    });
+    if (backToMain) {
+        backToMain.onclick = function() {
+            showScreen('main-screen');
+        };
+    }
+    
+    if (revealCard) {
+        revealCard.onclick = function() {
+            const currentCard = window.currentCard;
+            if (currentCard) {
+                animateCardOpening(currentCard);
+            }
+        };
+    }
     
     // Закрытие модального окна
-    document.querySelector('.close')?.addEventListener('click', () => {
-        document.getElementById('modal').classList.add('hidden');
-    });
+    const closeModal = document.querySelector('.close');
+    if (closeModal) {
+        closeModal.onclick = function() {
+            document.getElementById('modal').classList.add('hidden');
+        };
+    }
 }
 
 // Инициализация UI
 window.initUI = function() {
+    console.log("Initializing UI...");
     updateCoinDisplay();
     setupEventListeners();
     setupInventoryFilters();
