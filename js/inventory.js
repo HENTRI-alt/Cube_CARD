@@ -1,8 +1,8 @@
 // Система инвентаря
 let currentFilter = 'all';
 
-// Отображение инвентаря
-function renderInventory() {
+// Объявляем функции глобально
+window.renderInventory = function() {
     const gameState = loadGame();
     const inventoryGrid = document.getElementById('inventory-grid');
     
@@ -36,8 +36,7 @@ function renderInventory() {
     });
 }
 
-// Продажа карты
-function sellCard(cardId) {
+window.sellCard = function(cardId) {
     const gameState = loadGame();
     const cardIndex = gameState.inventory.findIndex(item => item.id === cardId);
     
@@ -62,7 +61,7 @@ function sellCard(cardId) {
 }
 
 // Фильтрация инвентаря
-function setupInventoryFilters() {
+window.setupInventoryFilters = function() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     
     filterButtons.forEach(button => {
@@ -79,7 +78,7 @@ function setupInventoryFilters() {
 }
 
 // Получение общей стоимости инвентаря
-function getInventoryValue() {
+window.getInventoryValue = function() {
     const gameState = loadGame();
     return gameState.inventory.reduce((total, item) => {
         return total + (item.value * item.count);

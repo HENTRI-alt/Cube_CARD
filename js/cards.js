@@ -124,3 +124,6 @@ function getRarityColor(rarity) {
     };
     return colors[rarity] || colors.common;
 }
+// Объявляем функции глобально
+window.getRandomCard = getRandomCard;
+window.getRarityColor = getRarityColor;

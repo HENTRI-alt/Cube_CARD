@@ -1,7 +1,7 @@
 // Управление интерфейсом
 
-// Переключение экранов
-function showScreen(screenId) {
+// Объявляем функции глобально
+window.showScreen = function(screenId) {
     // Скрываем все экраны
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -15,7 +15,7 @@ function showScreen(screenId) {
 }
 
 // Обновление отображения монет
-function updateCoinDisplay() {
+window.updateCoinDisplay = function() {
     const coinsElement = document.getElementById('coins');
     if (coinsElement) {
         coinsElement.textContent = getCoins();
@@ -23,7 +23,7 @@ function updateCoinDisplay() {
 }
 
 // Показ модального окна
-function showModal(message, duration = 3000) {
+window.showModal = function(message, duration = 3000) {
     const modal = document.getElementById('modal');
     const modalText = document.getElementById('modal-text');
     
@@ -38,7 +38,7 @@ function showModal(message, duration = 3000) {
 }
 
 // Анимация открытия карты
-function animateCardOpening(card) {
+window.animateCardOpening = function(card) {
     const cardElement = document.getElementById('card-preview');
     const cardImage = document.getElementById('card-image');
     const cardName = document.getElementById('card-name');
@@ -94,7 +94,7 @@ function animateCardOpening(card) {
 }
 
 // Настройка обработчиков событий
-function setupEventListeners() {
+window.setupEventListeners = function() {
     // Навигация
     document.getElementById('inventory-btn')?.addEventListener('click', () => {
         showScreen('inventory-screen');
@@ -135,7 +135,7 @@ function setupEventListeners() {
 }
 
 // Инициализация UI
-function initUI() {
+window.initUI = function() {
     updateCoinDisplay();
     setupEventListeners();
     setupInventoryFilters();

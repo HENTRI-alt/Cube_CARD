@@ -99,3 +99,10 @@ function resetGame() {
     localStorage.removeItem(SAVE_KEY);
     return loadGame();
 }
+// Объявляем функции глобально
+window.loadGame = loadGame;
+window.saveGame = saveGame;
+window.addCardToInventory = addCardToInventory;
+window.updateCoins = updateCoins;
+window.getCoins = getCoins;
+window.resetGame = resetGame;
