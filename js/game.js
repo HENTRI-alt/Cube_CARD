@@ -5,6 +5,7 @@ console.log("Game.js loaded!");
 window.currentCard = null;
 
 // Покупка пака
+// Покупка пака
 window.buyPack = function(packType, cost) {
     console.log("Buy pack called:", packType, cost);
     const currentCoins = getCoins();
@@ -39,6 +40,12 @@ window.buyPack = function(packType, cost) {
     showModal(message);
     
     console.log("Pack purchased successfully:", packType);
+    
+    // Проверяем что пак добавился
+    setTimeout(() => {
+        const packs = getUnopenedPacks();
+        console.log("Current packs after purchase:", packs);
+    }, 100);
 }
 
 // Инициализация игры

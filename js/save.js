@@ -7,7 +7,7 @@ const SAVE_KEY = 'cardSimulatorSave';
 const defaultGameState = {
     coins: 1000,
     inventory: [],
-    unopenedPacks: [],
+    unopenedPacks: [], // Добавляем пустой массив паков
     stats: {
         packsOpened: 0,
         cardsFound: 0,
@@ -29,6 +29,12 @@ function loadGame() {
         const saveData = localStorage.getItem(SAVE_KEY);
         if (saveData) {
             const gameState = JSON.parse(saveData);
+            
+            // Гарантируем что unopenedPacks существует
+            if (!gameState.unopenedPacks) {
+                gameState.unopenedPacks = [];
+            }
+            
             console.log("Game loaded:", gameState);
             return gameState;
         }
@@ -45,8 +51,13 @@ function loadGame() {
 // Сохранение игры
 function saveGame(gameState) {
     try {
+        // Гарантируем что unopenedPacks существует перед сохранением
+        if (!gameState.unopenedPacks) {
+            gameState.unopenedPacks = [];
+        }
+        
         localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
-        console.log("Game saved");
+        console.log("Game saved with packs:", gameState.unopenedPacks);
         return true;
     } catch (error) {
         console.error('Ошибка сохранения:', error);
@@ -57,6 +68,11 @@ function saveGame(gameState) {
 // Добавление карты в инвентарь
 function addCardToInventory(card) {
     const gameState = loadGame();
+    
+    // Гарантируем что inventory существует
+    if (!gameState.inventory) {
+        gameState.inventory = [];
+    }
     
     // Ищем карту в инвентаре
     const existingCard = gameState.inventory.find(item => item.id === card.id);
@@ -72,6 +88,7 @@ function addCardToInventory(card) {
     }
     
     // Обновляем статистику
+    if (!gameState.stats) gameState.stats = defaultGameState.stats;
     gameState.stats.cardsFound += 1;
     if (card.rarity === 'rare') gameState.stats.rareCardsFound += 1;
     if (card.rarity === 'epic') gameState.stats.epicCardsFound += 1;
@@ -85,6 +102,11 @@ function addCardToInventory(card) {
 function addPackToInventory(packType) {
     const gameState = loadGame();
     
+    // Гарантируем что unopenedPacks существует
+    if (!gameState.unopenedPacks) {
+        gameState.unopenedPacks = [];
+    }
+    
     const pack = {
         id: Date.now(), // уникальный ID
         type: packType,
@@ -95,13 +117,20 @@ function addPackToInventory(packType) {
     
     gameState.unopenedPacks.push(pack);
     saveGame(gameState);
-    console.log("Pack added:", pack);
+    console.log("Pack added to inventory:", pack);
     return gameState;
 }
 
 // Открываем одну карту из пака
 function openCardFromPack(packId) {
     const gameState = loadGame();
+    
+    // Гарантируем что unopenedPacks существует
+    if (!gameState.unopenedPacks) {
+        gameState.unopenedPacks = [];
+        return null;
+    }
+    
     const pack = gameState.unopenedPacks.find(p => p.id === packId);
     
     if (!pack || pack.cardsRemaining <= 0) {
@@ -132,7 +161,14 @@ function openCardFromPack(packId) {
 // Получаем непокрытые паки
 function getUnopenedPacks() {
     const gameState = loadGame();
-    return gameState.unopenedPacks;
+    
+    // Гарантируем что unopenedPacks существует
+    if (!gameState.unopenedPacks) {
+        gameState.unopenedPacks = [];
+        saveGame(gameState);
+    }
+    
+    return gameState.unopenedPacks || [];
 }
 
 // Обновление монет
@@ -141,6 +177,7 @@ function updateCoins(amount) {
     gameState.coins += amount;
     
     if (amount < 0) {
+        if (!gameState.stats) gameState.stats = defaultGameState.stats;
         gameState.stats.moneySpent += Math.abs(amount);
     }
     
@@ -162,6 +199,34 @@ function resetGame() {
     return loadGame();
 }
 
+// Исправляем существующее сохранение
+function fixExistingSave() {
+    const gameState = loadGame();
+    let needsFix = false;
+    
+    if (!gameState.unopenedPacks) {
+        gameState.unopenedPacks = [];
+        needsFix = true;
+    }
+    
+    if (!gameState.inventory) {
+        gameState.inventory = [];
+        needsFix = true;
+    }
+    
+    if (!gameState.stats) {
+        gameState.stats = defaultGameState.stats;
+        needsFix = true;
+    }
+    
+    if (needsFix) {
+        saveGame(gameState);
+        console.log("Save file fixed");
+    }
+    
+    return gameState;
+}
+
 // Объявляем функции глобально
 window.loadGame = loadGame;
 window.saveGame = saveGame;
@@ -172,3 +237,7 @@ window.getUnopenedPacks = getUnopenedPacks;
 window.updateCoins = updateCoins;
 window.getCoins = getCoins;
 window.resetGame = resetGame;
+window.fixExistingSave = fixExistingSave;
+
+// Исправляем существующее сохранение при загрузке
+fixExistingSave();
